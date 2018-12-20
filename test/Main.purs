@@ -45,7 +45,6 @@ main = runTest do
   ]
 }
         """)
-
     test "Polygon" do
       Assert.equal
         (Just
@@ -112,6 +111,25 @@ main = runTest do
       [100.2, 0.8],
       [100.8, 0.8]
     ]
+  ]
+}
+        """)
+    test "MultiPoint" do
+      Assert.equal
+        (Just
+          (MultiPoint
+            { type: "MultiPoint"
+            , coordinates:
+              [ [100.0, 0.0]
+              , [101.0, 1.0]
+              ]
+            }))
+        (parse """
+{
+  "type": "MultiPoint",
+  "coordinates": [
+    [100.0, 0.0],
+    [101.0, 1.0]
   ]
 }
         """)
