@@ -223,3 +223,38 @@ main = runTest do
   ]
 }
         """)
+
+    test "GeometryCollection" do
+      Assert.equal
+        (Just
+          (GeometryCollection
+            { type: "GeometryCollection"
+            , geometries:
+              [ Point
+                { type: "Point"
+                , coordinates: [100.0, 0.0]
+                }
+              , LineString
+                { type: "LineString"
+                , coordinates:
+                  [ [101.0, 0.0]
+                  , [102.0, 1.0]
+                  ]
+                }
+              ]
+            }))
+        (parse """
+{
+  "type": "GeometryCollection",
+  "geometries": [{
+    "type": "Point",
+    "coordinates": [100.0, 0.0]
+  }, {
+    "type": "LineString",
+    "coordinates": [
+      [101.0, 0.0],
+      [102.0, 1.0]
+    ]
+  }]
+}
+        """)
