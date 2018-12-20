@@ -1,5 +1,6 @@
 module Main
   ( GeometryObject(..)
+  , Position
   , parse
   ) where
 
@@ -9,13 +10,15 @@ import Prelude (class Eq, class Show, bind, map, show, (<>))
 import Simple.JSON (class ReadForeign, readImpl)
 import Simple.JSON as SimpleJSON
 
+type Position = Array Number
+
 data GeometryObject
-  = Point (Array Number)
-  | LineString (Array (Array Number))
-  | Polygon (Array (Array (Array Number)))
-  | MultiPoint (Array (Array Number))
-  | MultiLineString (Array (Array (Array Number)))
-  | MultiPolygon (Array (Array (Array (Array Number))))
+  = Point Position
+  | LineString (Array Position)
+  | Polygon (Array (Array Position))
+  | MultiPoint (Array Position)
+  | MultiLineString (Array (Array Position))
+  | MultiPolygon (Array (Array (Array Position)))
   | GeometryCollection (Array GeometryObject)
 
 derive instance eqGeometryObject :: Eq GeometryObject
