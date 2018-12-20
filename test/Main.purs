@@ -16,10 +16,7 @@ main = runTest do
     test "Point" do
       Assert.equal
         (Just
-          (Point
-            { type: "Point"
-            , coordinates: [100.0, 0.0]
-            }))
+          (Point [100.0, 0.0]))
         (parse """
 {
   "type": "Point",
@@ -30,12 +27,9 @@ main = runTest do
       Assert.equal
         (Just
           (LineString
-            { type: "LineString"
-            , coordinates:
-              [ [100.0, 0.0]
-              , [101.0, 1.0]
-              ]
-            }))
+            [ [100.0, 0.0]
+            , [101.0, 1.0]
+            ]))
         (parse """
 {
   "type": "LineString",
@@ -49,16 +43,13 @@ main = runTest do
       Assert.equal
         (Just
           (Polygon
-            { type: "Polygon"
-            , coordinates:
-              [ [ [100.0, 0.0]
-                , [101.0, 0.0]
-                , [101.0, 1.0]
-                , [100.0, 1.0]
-                , [100.0, 0.0]
-                ]
+            [ [ [100.0, 0.0]
+              , [101.0, 0.0]
+              , [101.0, 1.0]
+              , [100.0, 1.0]
+              , [100.0, 0.0]
               ]
-            }))
+            ]))
         (parse """
 {
   "type": "Polygon",
@@ -77,22 +68,19 @@ main = runTest do
       Assert.equal
         (Just
           (Polygon
-            { type: "Polygon"
-            , coordinates:
-              [ [ [100.0, 0.0]
-                , [101.0, 0.0]
-                , [101.0, 1.0]
-                , [100.0, 1.0]
-                , [100.0, 0.0]
-                ],
-                [ [100.8, 0.8]
-                , [100.8, 0.2]
-                , [100.2, 0.2]
-                , [100.2, 0.8]
-                , [100.8, 0.8]
-                ]
+            [ [ [100.0, 0.0]
+              , [101.0, 0.0]
+              , [101.0, 1.0]
+              , [100.0, 1.0]
+              , [100.0, 0.0]
+              ],
+              [ [100.8, 0.8]
+              , [100.8, 0.2]
+              , [100.2, 0.2]
+              , [100.2, 0.8]
+              , [100.8, 0.8]
               ]
-            }))
+            ]))
         (parse """
 {
   "type": "Polygon",
@@ -118,12 +106,9 @@ main = runTest do
       Assert.equal
         (Just
           (MultiPoint
-            { type: "MultiPoint"
-            , coordinates:
-              [ [100.0, 0.0]
-              , [101.0, 1.0]
-              ]
-            }))
+            [ [100.0, 0.0]
+            , [101.0, 1.0]
+            ]))
         (parse """
 {
   "type": "MultiPoint",
@@ -137,16 +122,13 @@ main = runTest do
       Assert.equal
         (Just
           (MultiLineString
-            { type: "MultiLineString"
-            , coordinates:
-              [ [ [100.0, 0.0]
-                , [101.0, 1.0]
-                ]
-              , [ [102.0, 2.0]
-                , [103.0, 3.0]
-                ]
+            [ [ [100.0, 0.0]
+              , [101.0, 1.0]
               ]
-            }))
+            , [ [102.0, 2.0]
+              , [103.0, 3.0]
+              ]
+            ]))
         (parse """
 {
   "type": "MultiLineString",
@@ -167,30 +149,27 @@ main = runTest do
       Assert.equal
         (Just
           (MultiPolygon
-            { type: "MultiPolygon"
-            , coordinates:
-              [ [ [ [102.0, 2.0]
-                  , [103.0, 2.0]
-                  , [103.0, 3.0]
-                  , [102.0, 3.0]
-                  , [102.0, 2.0]
-                  ]
-                ]
-              , [ [ [100.0, 0.0]
-                  , [101.0, 0.0]
-                  , [101.0, 1.0]
-                  , [100.0, 1.0]
-                  , [100.0, 0.0]
-                  ]
-                , [ [100.2, 0.2]
-                  , [100.2, 0.8]
-                  , [100.8, 0.8]
-                  , [100.8, 0.2]
-                  , [100.2, 0.2]
-                  ]
+            [ [ [ [102.0, 2.0]
+                , [103.0, 2.0]
+                , [103.0, 3.0]
+                , [102.0, 3.0]
+                , [102.0, 2.0]
                 ]
               ]
-            }))
+            , [ [ [100.0, 0.0]
+                , [101.0, 0.0]
+                , [101.0, 1.0]
+                , [100.0, 1.0]
+                , [100.0, 0.0]
+                ]
+              , [ [100.2, 0.2]
+                , [100.2, 0.8]
+                , [100.8, 0.8]
+                , [100.8, 0.2]
+                , [100.2, 0.2]
+                ]
+              ]
+            ]))
         (parse """
 {
   "type": "MultiPolygon",
@@ -228,21 +207,12 @@ main = runTest do
       Assert.equal
         (Just
           (GeometryCollection
-            { type: "GeometryCollection"
-            , geometries:
-              [ Point
-                { type: "Point"
-                , coordinates: [100.0, 0.0]
-                }
-              , LineString
-                { type: "LineString"
-                , coordinates:
-                  [ [101.0, 0.0]
-                  , [102.0, 1.0]
-                  ]
-                }
+            [ Point [100.0, 0.0]
+            , LineString
+              [ [101.0, 0.0]
+              , [102.0, 1.0]
               ]
-            }))
+            ]))
         (parse """
 {
   "type": "GeometryCollection",

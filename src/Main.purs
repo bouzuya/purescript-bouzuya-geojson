@@ -1,12 +1,5 @@
 module Main
   ( GeometryObject(..)
-  , LineStringJSON
-  , PointJSON
-  , PolygonJSON
-  , MultiPointJSON
-  , MultiLineStringJSON
-  , MultiPolygonJSON
-  , GeometryCollectionJSON
   , parse
   ) where
 
@@ -16,43 +9,14 @@ import Prelude (class Eq, class Show, bind, map, show, (<>))
 import Simple.JSON (class ReadForeign, readImpl)
 import Simple.JSON as SimpleJSON
 
-type PointJSON =
-  { type :: String
-  , coordinates :: Array Number
-  }
-type LineStringJSON =
-  { type :: String
-  , coordinates :: Array (Array Number)
-  }
-type PolygonJSON =
-  { type :: String
-  , coordinates :: Array (Array (Array Number))
-  }
-type MultiPointJSON =
-  { type :: String
-  , coordinates :: Array (Array Number)
-  }
-type MultiLineStringJSON =
-  { type :: String
-  , coordinates :: Array (Array (Array Number))
-  }
-type MultiPolygonJSON =
-  { type :: String
-  , coordinates :: Array (Array (Array (Array Number)))
-  }
-type GeometryCollectionJSON =
-  { type :: String
-  , geometries :: Array GeometryObject
-  }
-
 data GeometryObject
-  = Point PointJSON
-  | LineString LineStringJSON
-  | Polygon PolygonJSON
-  | MultiPoint MultiPointJSON
-  | MultiLineString MultiLineStringJSON
-  | MultiPolygon MultiPolygonJSON
-  | GeometryCollection GeometryCollectionJSON
+  = Point (Array Number)
+  | LineString (Array (Array Number))
+  | Polygon (Array (Array (Array Number)))
+  | MultiPoint (Array (Array Number))
+  | MultiLineString (Array (Array (Array Number)))
+  | MultiPolygon (Array (Array (Array (Array Number))))
+  | GeometryCollection (Array GeometryObject)
 
 derive instance eqGeometryObject :: Eq GeometryObject
 
@@ -60,14 +24,51 @@ instance readForeignGeometryObject :: ReadForeign GeometryObject where
   readImpl f = do
     o <- readImpl f :: F { type :: String }
     case o.type of
-      "Point" -> map Point (readImpl f :: F PointJSON)
-      "LineString" -> map LineString (readImpl f :: F LineStringJSON)
-      "Polygon" -> map Polygon (readImpl f :: F PolygonJSON)
-      "MultiPoint" -> map MultiPoint (readImpl f :: F MultiPointJSON)
-      "MultiLineString" -> map MultiLineString (readImpl f :: F MultiLineStringJSON)
-      "MultiPolygon" -> map MultiPolygon (readImpl f :: F MultiPolygonJSON)
-      "GeometryCollection" -> map GeometryCollection (readImpl f :: F GeometryCollectionJSON)
-      _ -> fail (ForeignError "unknown GeoJSON type")
+      "Point" ->
+        map
+          Point
+          (map
+            _.coordinates
+            (readImpl f :: F { coordinates :: Array Number }))
+      "LineString" ->
+        map
+          LineString
+          (map
+            _.coordinates
+            (readImpl f :: F { coordinates :: Array (Array Number) }))
+      "Polygon" ->
+        map
+          Polygon
+            (map
+              _.coordinates
+              (readImpl f :: F { coordinates :: Array (Array (Array Number)) }))
+      "MultiPoint" ->
+        map
+          MultiPoint
+            (map
+              _.coordinates
+              (readImpl f :: F { coordinates :: Array (Array Number) }))
+      "MultiLineString" ->
+        map
+          MultiLineString
+          (map
+            _.coordinates
+            (readImpl f :: F { coordinates :: Array (Array (Array Number)) }))
+      "MultiPolygon" ->
+        map
+          MultiPolygon
+          (map
+            _.coordinates
+            (readImpl f :: F { coordinates :: Array (Array (Array (Array Number))) }))
+
+      "GeometryCollection" ->
+        map
+          GeometryCollection
+          (map
+            _.geometries
+            (readImpl f :: F { geometries :: Array GeometryObject }))
+      _ ->
+        fail (ForeignError "unknown GeoJSON type")
 
 instance showGeometryObject :: Show GeometryObject where
   show (Point r) = "(Point " <> show r <> ")"
