@@ -1,5 +1,5 @@
 module Main
-  ( GeoJSON(..)
+  ( GeometryObject(..)
   , LineStringJSON
   , PointJSON
   , PolygonJSON
@@ -42,10 +42,10 @@ type MultiPolygonJSON =
   }
 type GeometryCollectionJSON =
   { type :: String
-  , geometries :: Array GeoJSON
+  , geometries :: Array GeometryObject
   }
 
-data GeoJSON
+data GeometryObject
   = Point PointJSON
   | LineString LineStringJSON
   | Polygon PolygonJSON
@@ -54,9 +54,9 @@ data GeoJSON
   | MultiPolygon MultiPolygonJSON
   | GeometryCollection GeometryCollectionJSON
 
-derive instance eqGeoJSON :: Eq GeoJSON
+derive instance eqGeometryObject :: Eq GeometryObject
 
-instance readForeignGeoJSON :: ReadForeign GeoJSON where
+instance readForeignGeometryObject :: ReadForeign GeometryObject where
   readImpl f = do
     o <- readImpl f :: F { type :: String }
     case o.type of
@@ -69,7 +69,7 @@ instance readForeignGeoJSON :: ReadForeign GeoJSON where
       "GeometryCollection" -> map GeometryCollection (readImpl f :: F GeometryCollectionJSON)
       _ -> fail (ForeignError "unknown GeoJSON type")
 
-instance showGeoJSON :: Show GeoJSON where
+instance showGeometryObject :: Show GeometryObject where
   show (Point r) = "(Point " <> show r <> ")"
   show (LineString r) = "(LineString " <> show r <> ")"
   show (Polygon r) = "(Polygon " <> show r <> ")"
@@ -78,5 +78,5 @@ instance showGeoJSON :: Show GeoJSON where
   show (MultiPolygon r) = "(MultiPolygon " <> show r <> ")"
   show (GeometryCollection r) = "(GeometryCollection " <> show r <> ")"
 
-parse :: String -> Maybe GeoJSON
+parse :: String -> Maybe GeometryObject
 parse = SimpleJSON.readJSON_

@@ -4,7 +4,7 @@ module Test.Main
 
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Main (GeoJSON(..), parse)
+import Main (GeometryObject(..), parse)
 import Prelude (Unit, discard)
 import Test.Unit (suite, test)
 import Test.Unit.Assert as Assert
