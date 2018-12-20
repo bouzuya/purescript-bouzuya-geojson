@@ -5,6 +5,7 @@ module Main
   , PolygonJSON
   , MultiPointJSON
   , MultiLineStringJSON
+  , MultiPolygonJSON
   , parse
   ) where
 
@@ -34,6 +35,9 @@ type MultiLineStringJSON =
   { type :: String
   , coordinates :: Array (Array (Array Number))
   }
+type MultiPolygonJSON =
+  { type :: String
+  , coordinates :: Array (Array (Array (Array Number))) }
 
 data GeoJSON
   = Point PointJSON
@@ -41,6 +45,7 @@ data GeoJSON
   | Polygon PolygonJSON
   | MultiPoint MultiPointJSON
   | MultiLineString MultiLineStringJSON
+  | MultiPolygon MultiPolygonJSON
 
 derive instance eqGeoJSON :: Eq GeoJSON
 
@@ -53,6 +58,7 @@ instance readForeignGeoJSON :: ReadForeign GeoJSON where
       "Polygon" -> map Polygon (readImpl f :: F PolygonJSON)
       "MultiPoint" -> map MultiPoint (readImpl f :: F MultiPointJSON)
       "MultiLineString" -> map MultiLineString (readImpl f :: F MultiLineStringJSON)
+      "MultiPolygon" -> map MultiPolygon (readImpl f :: F MultiPolygonJSON)
       _ -> fail (ForeignError "unknown GeoJSON type")
 
 instance showGeoJSON :: Show GeoJSON where
@@ -61,6 +67,7 @@ instance showGeoJSON :: Show GeoJSON where
   show (Polygon r) = "(Polygon " <> show r <> ")"
   show (MultiPoint r) = "(MultiPoint " <> show r <> ")"
   show (MultiLineString r) = "(MultiLineString " <> show r <> ")"
+  show (MultiPolygon r) = "(MultiPolygon " <> show r <> ")"
 
 parse :: String -> Maybe GeoJSON
 parse = SimpleJSON.readJSON_
