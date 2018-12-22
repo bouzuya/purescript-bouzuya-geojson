@@ -11,10 +11,10 @@ module Main
 import Data.Either (Either(..), either)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Nullable (Nullable, toMaybe)
-import Foreign (F, Foreign, ForeignError(..), fail)
+import Foreign (F, Foreign, ForeignError(..))
 import Foreign as Foreign
-import Prelude (class Eq, class Show, bind, identity, map, pure, show, (<>))
-import Simple.JSON (class ReadForeign, readImpl)
+import Prelude (class Eq, class Show, bind, identity, map, pure, show, (<<<), (<>))
+import Simple.JSON (class ReadForeign)
 import Simple.JSON as SimpleJSON
 
 type Position = Array Number
@@ -32,52 +32,38 @@ derive instance eqGeometryObject :: Eq GeometryObject
 
 instance readForeignGeometryObject :: ReadForeign GeometryObject where
   readImpl f = do
-    o <- readImpl f :: F { type :: String }
+    o <- SimpleJSON.readImpl f :: F { type :: String }
     case o.type of
       "Point" ->
         map
-          Point
-          (map
-            _.coordinates
-            (readImpl f :: F { coordinates :: Array Number }))
+          (Point <<< _.coordinates)
+          (SimpleJSON.readImpl f :: F { coordinates :: Position })
       "LineString" ->
         map
-          LineString
-          (map
-            _.coordinates
-            (readImpl f :: F { coordinates :: Array (Array Number) }))
+          (LineString <<< _.coordinates)
+          (SimpleJSON.readImpl f :: F { coordinates :: Array Position })
       "Polygon" ->
         map
-          Polygon
-            (map
-              _.coordinates
-              (readImpl f :: F { coordinates :: Array (Array (Array Number)) }))
+          (Polygon <<< _.coordinates)
+          (SimpleJSON.readImpl f :: F { coordinates :: Array (Array Position) })
       "MultiPoint" ->
         map
-          MultiPoint
-            (map
-              _.coordinates
-              (readImpl f :: F { coordinates :: Array (Array Number) }))
+          (MultiPoint <<< _.coordinates)
+          (SimpleJSON.readImpl f :: F { coordinates :: Array Position })
       "MultiLineString" ->
         map
-          MultiLineString
-          (map
-            _.coordinates
-            (readImpl f :: F { coordinates :: Array (Array (Array Number)) }))
+          (MultiLineString <<< _.coordinates)
+          (SimpleJSON.readImpl f :: F { coordinates :: Array (Array Position) })
       "MultiPolygon" ->
         map
-          MultiPolygon
-          (map
-            _.coordinates
-            (readImpl f :: F { coordinates :: Array (Array (Array (Array Number))) }))
+          (MultiPolygon <<< _.coordinates)
+          (SimpleJSON.readImpl f :: F { coordinates :: Array (Array (Array Position)) })
       "GeometryCollection" ->
         map
-          GeometryCollection
-          (map
-            _.geometries
-            (readImpl f :: F { geometries :: Array GeometryObject }))
+          (GeometryCollection <<< _.geometries)
+          (SimpleJSON.readImpl f :: F { geometries :: Array GeometryObject })
       _ ->
-        fail (ForeignError "unknown Geometry Object type")
+        Foreign.fail (ForeignError "unknown Geometry Object type")
 
 instance showGeometryObject :: Show GeometryObject where
   show (Point r) = "(Point " <> show r <> ")"
@@ -102,11 +88,11 @@ derive instance eqFeatureObject :: Eq FeatureObject
 
 instance readForeignFeatureObject :: ReadForeign FeatureObject where
   readImpl f = do
-    o <- readImpl f :: F { type :: String }
+    o <- SimpleJSON.readImpl f :: F { type :: String }
     case o.type of
       "Feature" -> do
         { geometry, properties, id } <-
-          readImpl f ::
+          SimpleJSON.readImpl f ::
             F { geometry :: Nullable GeometryObject
               , properties :: Nullable Foreign
               , id :: Maybe Foreign
@@ -118,14 +104,14 @@ instance readForeignFeatureObject :: ReadForeign FeatureObject where
               case Foreign.tagOf id' of
                 "Number" -> map Just (map Left (Foreign.readNumber id'))
                 "String" -> map Just (map Right (Foreign.readString id'))
-                _ -> fail (ForeignError "unknown Feature Object id type")
+                _ -> Foreign.fail (ForeignError "unknown Feature Object id type")
         pure
           (Feature
             (toMaybe geometry)
             (map SimpleJSON.writeJSON (toMaybe properties))
             id')
       _ ->
-        fail (ForeignError "unknown Feature Object type")
+        Foreign.fail (ForeignError "unknown Feature Object type")
 
 instance showFeatureObject :: Show FeatureObject where
   show (Feature g p i)
@@ -142,14 +128,14 @@ derive instance eqFeatureCollectionObject :: Eq FeatureCollectionObject
 
 instance readForeignFeatureCollectionObject :: ReadForeign FeatureCollectionObject where
   readImpl f = do
-    o <- readImpl f :: F { type :: String }
+    o <- SimpleJSON.readImpl f :: F { type :: String }
     case o.type of
       "FeatureCollection" ->
         map
-          FeatureCollection
-          (map _.features (readImpl f :: F { features :: Array FeatureObject }))
+          (FeatureCollection <<< _.features)
+          (SimpleJSON.readImpl f :: F { features :: Array FeatureObject })
       _ ->
-        fail (ForeignError "unknown FeatureCollection Object type")
+        Foreign.fail (ForeignError "unknown FeatureCollection Object type")
 
 instance showFeatureCollectionObject :: Show FeatureCollectionObject where
   show (FeatureCollection fs) = "(FeatureCollection " <> show fs <> ")"
@@ -163,28 +149,28 @@ derive instance eqGeoJSON :: Eq GeoJSON
 
 instance readForeignGeoJSON :: ReadForeign GeoJSON where
   readImpl f = do
-    o <- readImpl f :: F { type :: String }
+    o <- SimpleJSON.readImpl f :: F { type :: String }
     case o.type of
       "FeatureCollection" ->
-        map FeatureCollectionObject (readImpl f :: F FeatureCollectionObject)
+        map FeatureCollectionObject (SimpleJSON.readImpl f :: F FeatureCollectionObject)
       "Feature" ->
-        map FeatureObject (readImpl f :: F FeatureObject)
+        map FeatureObject (SimpleJSON.readImpl f :: F FeatureObject)
       "Point" ->
-        map GeometryObject (readImpl f :: F GeometryObject)
+        map GeometryObject (SimpleJSON.readImpl f :: F GeometryObject)
       "LineString" ->
-        map GeometryObject (readImpl f :: F GeometryObject)
+        map GeometryObject (SimpleJSON.readImpl f :: F GeometryObject)
       "Polygon" ->
-        map GeometryObject (readImpl f :: F GeometryObject)
+        map GeometryObject (SimpleJSON.readImpl f :: F GeometryObject)
       "MultiPoint" ->
-        map GeometryObject (readImpl f :: F GeometryObject)
+        map GeometryObject (SimpleJSON.readImpl f :: F GeometryObject)
       "MultiLineString" ->
-        map GeometryObject (readImpl f :: F GeometryObject)
+        map GeometryObject (SimpleJSON.readImpl f :: F GeometryObject)
       "MultiPolygon" ->
-        map GeometryObject (readImpl f :: F GeometryObject)
+        map GeometryObject (SimpleJSON.readImpl f :: F GeometryObject)
       "GeometryCollection" ->
-        map GeometryObject (readImpl f :: F GeometryObject)
+        map GeometryObject (SimpleJSON.readImpl f :: F GeometryObject)
       _ ->
-        fail (ForeignError "unknown GeoJSON type")
+        Foreign.fail (ForeignError "unknown GeoJSON type")
 
 instance showGeoJSON :: Show GeoJSON where
   show (GeometryObject o) = show o
