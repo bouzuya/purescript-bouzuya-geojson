@@ -1,5 +1,6 @@
 module Main
-  ( FeatureId
+  ( FeatureCollectionObject(..)
+  , FeatureId
   , FeatureObject(..)
   , GeometryObject(..)
   , Position
@@ -132,3 +133,22 @@ instance showFeatureObject :: Show FeatureObject where
     <> " properties: " <> maybe "null" identity p
     <> (maybe "" (\e -> " id: " <> (either show identity e)) i)
     <> ")"
+
+data FeatureCollectionObject
+  = FeatureCollection (Array FeatureObject)
+
+derive instance eqFeatureCollectionObject :: Eq FeatureCollectionObject
+
+instance readForeignFeatureCollectionObject :: ReadForeign FeatureCollectionObject where
+  readImpl f = do
+    o <- readImpl f :: F { type :: String }
+    case o.type of
+      "FeatureCollection" ->
+        map
+          FeatureCollection
+          (map _.features (readImpl f :: F { features :: Array FeatureObject }))
+      _ ->
+        fail (ForeignError "unknown FeatureCollection Object type")
+
+instance showFeatureCollectionObject :: Show FeatureCollectionObject where
+  show (FeatureCollection fs) = "(FeatureCollection " <> show fs <> ")"
