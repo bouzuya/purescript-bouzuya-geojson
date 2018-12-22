@@ -4,8 +4,9 @@ module Test.Main
 
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Main (GeometryObject(..), parse)
+import Main (GeometryObject(..))
 import Prelude (Unit, discard)
+import Simple.JSON as SimpleJSON
 import Test.Unit (suite, test)
 import Test.Unit.Assert as Assert
 import Test.Unit.Main (runTest)
@@ -17,12 +18,12 @@ main = runTest do
       Assert.equal
         (Just
           (Point [100.0, 0.0]))
-        (parse """
+        (SimpleJSON.readJSON_ """
 {
   "type": "Point",
   "coordinates": [100.0, 0.0]
 }
-        """)
+        """ :: Maybe GeometryObject)
     test "LineString" do
       Assert.equal
         (Just
@@ -30,7 +31,7 @@ main = runTest do
             [ [100.0, 0.0]
             , [101.0, 1.0]
             ]))
-        (parse """
+        (SimpleJSON.readJSON_ """
 {
   "type": "LineString",
   "coordinates": [
@@ -38,7 +39,7 @@ main = runTest do
     [101.0, 1.0]
   ]
 }
-        """)
+        """ :: Maybe GeometryObject)
     test "Polygon" do
       Assert.equal
         (Just
@@ -50,7 +51,7 @@ main = runTest do
               , [100.0, 0.0]
               ]
             ]))
-        (parse """
+        (SimpleJSON.readJSON_ """
 {
   "type": "Polygon",
   "coordinates": [
@@ -63,7 +64,7 @@ main = runTest do
     ]
   ]
 }
-        """)
+        """ :: Maybe GeometryObject)
 
       Assert.equal
         (Just
@@ -81,7 +82,7 @@ main = runTest do
               , [100.8, 0.8]
               ]
             ]))
-        (parse """
+        (SimpleJSON.readJSON_ """
 {
   "type": "Polygon",
   "coordinates": [
@@ -101,7 +102,7 @@ main = runTest do
     ]
   ]
 }
-        """)
+        """ :: Maybe GeometryObject)
     test "MultiPoint" do
       Assert.equal
         (Just
@@ -109,7 +110,7 @@ main = runTest do
             [ [100.0, 0.0]
             , [101.0, 1.0]
             ]))
-        (parse """
+        (SimpleJSON.readJSON_ """
 {
   "type": "MultiPoint",
   "coordinates": [
@@ -117,7 +118,7 @@ main = runTest do
     [101.0, 1.0]
   ]
 }
-        """)
+        """ :: Maybe GeometryObject)
     test "MultiLineString" do
       Assert.equal
         (Just
@@ -129,7 +130,7 @@ main = runTest do
               , [103.0, 3.0]
               ]
             ]))
-        (parse """
+        (SimpleJSON.readJSON_ """
 {
   "type": "MultiLineString",
   "coordinates": [
@@ -143,7 +144,7 @@ main = runTest do
     ]
   ]
 }
-        """)
+        """ :: Maybe GeometryObject)
 
     test "MultiPolygon" do
       Assert.equal
@@ -170,7 +171,7 @@ main = runTest do
                 ]
               ]
             ]))
-        (parse """
+        (SimpleJSON.readJSON_ """
 {
   "type": "MultiPolygon",
   "coordinates": [
@@ -201,7 +202,7 @@ main = runTest do
     ]
   ]
 }
-        """)
+        """ :: Maybe GeometryObject)
 
     test "GeometryCollection" do
       Assert.equal
@@ -213,7 +214,7 @@ main = runTest do
               , [102.0, 1.0]
               ]
             ]))
-        (parse """
+        (SimpleJSON.readJSON_ """
 {
   "type": "GeometryCollection",
   "geometries": [{
@@ -227,4 +228,4 @@ main = runTest do
     ]
   }]
 }
-        """)
+        """ :: Maybe GeometryObject)

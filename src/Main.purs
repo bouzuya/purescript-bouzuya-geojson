@@ -1,14 +1,11 @@
 module Main
   ( GeometryObject(..)
   , Position
-  , parse
   ) where
 
-import Data.Maybe (Maybe)
 import Foreign (F, ForeignError(..), fail)
 import Prelude (class Eq, class Show, bind, map, show, (<>))
 import Simple.JSON (class ReadForeign, readImpl)
-import Simple.JSON as SimpleJSON
 
 type Position = Array Number
 
@@ -63,7 +60,6 @@ instance readForeignGeometryObject :: ReadForeign GeometryObject where
           (map
             _.coordinates
             (readImpl f :: F { coordinates :: Array (Array (Array (Array Number))) }))
-
       "GeometryCollection" ->
         map
           GeometryCollection
@@ -81,6 +77,3 @@ instance showGeometryObject :: Show GeometryObject where
   show (MultiLineString r) = "(MultiLineString " <> show r <> ")"
   show (MultiPolygon r) = "(MultiPolygon " <> show r <> ")"
   show (GeometryCollection r) = "(GeometryCollection " <> show r <> ")"
-
-parse :: String -> Maybe GeometryObject
-parse = SimpleJSON.readJSON_
