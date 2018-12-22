@@ -2,9 +2,10 @@ module Test.Main
   ( main
   ) where
 
+import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Main (GeometryObject(..))
+import Main (FeatureObject(..), GeometryObject(..))
 import Prelude (Unit, discard)
 import Simple.JSON as SimpleJSON
 import Test.Unit (suite, test)
@@ -229,3 +230,40 @@ main = runTest do
   }]
 }
         """ :: Maybe GeometryObject)
+
+    test "Feature" do
+      Assert.equal
+        (Just
+          (Feature
+            (Just (Point [102.0, 0.5]))
+            (Just (SimpleJSON.writeJSON { prop0: "value0" }))
+            Nothing
+            ))
+        (SimpleJSON.readJSON_ """
+{
+  "type": "Feature",
+  "geometry": {
+    "type": "Point",
+    "coordinates": [102.0, 0.5]
+  },
+  "properties": {
+    "prop0": "value0"
+  }
+}
+        """ :: Maybe FeatureObject)
+      Assert.equal
+        (Just
+          (Feature
+            Nothing
+            Nothing
+            (Just (Right "f1"))
+            ))
+        (SimpleJSON.readJSON_ """
+{
+  "type": "Feature",
+  "id": "f1",
+  "geometry": null,
+  "properties": null,
+  "title": "Example Feature"
+}
+        """ :: Maybe FeatureObject)
