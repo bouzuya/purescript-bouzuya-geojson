@@ -5,9 +5,10 @@ module Test.Main
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Foreign (F, Foreign)
-import Main (FeatureCollectionObject(..), FeatureObject(..), GeometryObject(..))
-import Prelude (Unit, bind, discard, map)
+import Foreign (Foreign)
+import Main (FeatureCollectionObject(..), FeatureObject(..), GeoJSON, GeometryObject(..))
+import Main as GeoJSON
+import Prelude (Unit, discard, map)
 import Simple.JSON as SimpleJSON
 import Test.Unit (suite, test)
 import Test.Unit.Assert as Assert
@@ -362,3 +363,98 @@ main = runTest do
   }]
 }
         """ :: Maybe FeatureCollectionObject)
+
+    test "GeoJSON" do
+      Assert.equal
+        (Just
+          (GeoJSON.FeatureCollectionObject
+            (FeatureCollection
+              [ (Feature
+                  (Just (Point [102.0, 0.5]))
+                  (Just (SimpleJSON.writeJSON { prop0: "value0" }))
+                  Nothing)
+              , (Feature
+                  (Just
+                    (LineString
+                      [ [102.0, 0.0]
+                      , [103.0, 1.0]
+                      , [104.0, 0.0]
+                      , [105.0, 1.0]
+                      ]))
+                  (map SimpleJSON.writeJSON (SimpleJSON.readJSON_ """
+  {
+    "prop0": "value0",
+    "prop1": 0.0
+  }
+                  """ :: Maybe Foreign))
+                  Nothing)
+              , (Feature
+                  (Just
+                    (Polygon
+                      [ [ [100.0, 0.0]
+                        , [101.0, 0.0]
+                        , [101.0, 1.0]
+                        , [100.0, 1.0]
+                        , [100.0, 0.0]
+                        ]
+                      ]))
+                  (map SimpleJSON.writeJSON (SimpleJSON.readJSON_ """
+  {
+    "prop0": "value0",
+    "prop1": {
+      "this": "that"
+    }
+  }
+                  """ :: Maybe Foreign))
+                  Nothing)
+              ])))
+        (SimpleJSON.readJSON_ """
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [102.0, 0.5]
+    },
+    "properties": {
+      "prop0": "value0"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [102.0, 0.0],
+        [103.0, 1.0],
+        [104.0, 0.0],
+        [105.0, 1.0]
+      ]
+    },
+    "properties": {
+      "prop0": "value0",
+      "prop1": 0.0
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [100.0, 0.0],
+          [101.0, 0.0],
+          [101.0, 1.0],
+          [100.0, 1.0],
+          [100.0, 0.0]
+        ]
+      ]
+    },
+    "properties": {
+      "prop0": "value0",
+      "prop1": {
+        "this": "that"
+      }
+    }
+  }]
+}
+        """ :: Maybe GeoJSON)

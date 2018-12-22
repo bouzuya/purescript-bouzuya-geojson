@@ -2,6 +2,7 @@ module Main
   ( FeatureCollectionObject(..)
   , FeatureId
   , FeatureObject(..)
+  , GeoJSON(..)
   , GeometryObject(..)
   , Position
   , Properties
@@ -152,3 +153,40 @@ instance readForeignFeatureCollectionObject :: ReadForeign FeatureCollectionObje
 
 instance showFeatureCollectionObject :: Show FeatureCollectionObject where
   show (FeatureCollection fs) = "(FeatureCollection " <> show fs <> ")"
+
+data GeoJSON
+  = GeometryObject GeometryObject
+  | FeatureObject FeatureObject
+  | FeatureCollectionObject FeatureCollectionObject
+
+derive instance eqGeoJSON :: Eq GeoJSON
+
+instance readForeignGeoJSON :: ReadForeign GeoJSON where
+  readImpl f = do
+    o <- readImpl f :: F { type :: String }
+    case o.type of
+      "FeatureCollection" ->
+        map FeatureCollectionObject (readImpl f :: F FeatureCollectionObject)
+      "Feature" ->
+        map FeatureObject (readImpl f :: F FeatureObject)
+      "Point" ->
+        map GeometryObject (readImpl f :: F GeometryObject)
+      "LineString" ->
+        map GeometryObject (readImpl f :: F GeometryObject)
+      "Polygon" ->
+        map GeometryObject (readImpl f :: F GeometryObject)
+      "MultiPoint" ->
+        map GeometryObject (readImpl f :: F GeometryObject)
+      "MultiLineString" ->
+        map GeometryObject (readImpl f :: F GeometryObject)
+      "MultiPolygon" ->
+        map GeometryObject (readImpl f :: F GeometryObject)
+      "GeometryCollection" ->
+        map GeometryObject (readImpl f :: F GeometryObject)
+      _ ->
+        fail (ForeignError "unknown GeoJSON type")
+
+instance showGeoJSON :: Show GeoJSON where
+  show (GeometryObject o) = show o
+  show (FeatureObject o) = show o
+  show (FeatureCollectionObject o) = show o
