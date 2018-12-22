@@ -1,4 +1,4 @@
-# purescript-geojson
+# purescript-bouzuya-geojson
 
 GeoJSON
 

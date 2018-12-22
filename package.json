@@ -1,5 +1,5 @@
 {
-  "name": "purescript-geojson",
+  "name": "purescript-bouzuya-geojson",
   "description": "GeoJSON",
   "version": "0.0.0",
   "author": {
@@ -8,19 +8,19 @@
     "email": "m@bouzuya.net"
   },
   "bugs": {
-    "url": "https://github.com/bouzuya/purescript-geojson/issues"
+    "url": "https://github.com/bouzuya/purescript-bouzuya-geojson/issues"
   },
   "devDependencies": {
     "npm-run-all": "^4.1.5",
     "psc-package": "^3.0.1",
     "purescript": "^0.12.1"
   },
-  "homepage": "https://github.com/bouzuya/purescript-geojson#readme",
+  "homepage": "https://github.com/bouzuya/purescript-bouzuya-geojson#readme",
   "keywords": [],
   "license": "MIT",
   "main": "index.js",
   "repository": {
-    "url": "git+https://github.com/bouzuya/purescript-geojson.git",
+    "url": "git+https://github.com/bouzuya/purescript-bouzuya-geojson.git",
     "type": "git"
   },
   "scripts": {
