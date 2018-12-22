@@ -1,4 +1,4 @@
-module Main
+module Bouzuya.Data.GeoJSON
   ( FeatureCollectionObject(..)
   , FeatureId
   , FeatureObject(..)
