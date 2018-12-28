@@ -16,23 +16,29 @@ tests :: TestSuite
 tests =
   suite "Geometry Object" do
     test "Point" do
-      Assert.equal
-        (Just
-          (Point [100.0, 0.0]))
-        (SimpleJSON.readJSON_ """
+      let
+        o = Point [100.0, 0.0]
+        t' = """
 {
   "type": "Point",
   "coordinates": [100.0, 0.0]
 }
-        """ :: Maybe GeometryObject)
-    test "LineString" do
+        """
       Assert.equal
-        (Just
-          (LineString
+        (Just o)
+        (SimpleJSON.readJSON_ t' :: Maybe GeometryObject)
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ (SimpleJSON.writeJSON o))
+
+    test "LineString" do
+      let
+        o =
+          LineString
             [ [100.0, 0.0]
             , [101.0, 1.0]
-            ]))
-        (SimpleJSON.readJSON_ """
+            ]
+        t' = """
 {
   "type": "LineString",
   "coordinates": [
@@ -40,19 +46,26 @@ tests =
     [101.0, 1.0]
   ]
 }
-        """ :: Maybe GeometryObject)
-    test "Polygon" do
+        """
       Assert.equal
-        (Just
-          (Polygon
+        (Just o)
+        (SimpleJSON.readJSON_ t' :: Maybe GeometryObject)
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ (SimpleJSON.writeJSON o))
+
+    test "Polygon" do
+      let
+        o =
+          Polygon
             [ [ [100.0, 0.0]
               , [101.0, 0.0]
               , [101.0, 1.0]
               , [100.0, 1.0]
               , [100.0, 0.0]
               ]
-            ]))
-        (SimpleJSON.readJSON_ """
+            ]
+        t' = """
 {
   "type": "Polygon",
   "coordinates": [
@@ -65,11 +78,16 @@ tests =
     ]
   ]
 }
-        """ :: Maybe GeometryObject)
-
+        """
       Assert.equal
-        (Just
-          (Polygon
+        (Just o)
+        (SimpleJSON.readJSON_ t' :: Maybe GeometryObject)
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ (SimpleJSON.writeJSON o))
+      let
+        o2 =
+          Polygon
             [ [ [100.0, 0.0]
               , [101.0, 0.0]
               , [101.0, 1.0]
@@ -82,8 +100,8 @@ tests =
               , [100.2, 0.8]
               , [100.8, 0.8]
               ]
-            ]))
-        (SimpleJSON.readJSON_ """
+            ]
+        t'2 = """
 {
   "type": "Polygon",
   "coordinates": [
@@ -103,15 +121,22 @@ tests =
     ]
   ]
 }
-        """ :: Maybe GeometryObject)
-    test "MultiPoint" do
+        """
       Assert.equal
-        (Just
-          (MultiPoint
+        (Just o2)
+        (SimpleJSON.readJSON_ t'2 :: Maybe GeometryObject)
+      Assert.equal
+        (Just o2)
+        (SimpleJSON.readJSON_ (SimpleJSON.writeJSON o2))
+
+    test "MultiPoint" do
+      let
+        o =
+          MultiPoint
             [ [100.0, 0.0]
             , [101.0, 1.0]
-            ]))
-        (SimpleJSON.readJSON_ """
+            ]
+        t' = """
 {
   "type": "MultiPoint",
   "coordinates": [
@@ -119,19 +144,26 @@ tests =
     [101.0, 1.0]
   ]
 }
-        """ :: Maybe GeometryObject)
-    test "MultiLineString" do
+        """
       Assert.equal
-        (Just
-          (MultiLineString
+        (Just o)
+        (SimpleJSON.readJSON_ t' :: Maybe GeometryObject)
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ (SimpleJSON.writeJSON o))
+
+    test "MultiLineString" do
+      let
+        o =
+          MultiLineString
             [ [ [100.0, 0.0]
               , [101.0, 1.0]
               ]
             , [ [102.0, 2.0]
               , [103.0, 3.0]
               ]
-            ]))
-        (SimpleJSON.readJSON_ """
+            ]
+        t' = """
 {
   "type": "MultiLineString",
   "coordinates": [
@@ -145,12 +177,18 @@ tests =
     ]
   ]
 }
-        """ :: Maybe GeometryObject)
+        """
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ t' :: Maybe GeometryObject)
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ (SimpleJSON.writeJSON o))
 
     test "MultiPolygon" do
-      Assert.equal
-        (Just
-          (MultiPolygon
+      let
+        o =
+          MultiPolygon
             [ [ [ [102.0, 2.0]
                 , [103.0, 2.0]
                 , [103.0, 3.0]
@@ -171,8 +209,8 @@ tests =
                 , [100.2, 0.2]
                 ]
               ]
-            ]))
-        (SimpleJSON.readJSON_ """
+            ]
+        t' = """
 {
   "type": "MultiPolygon",
   "coordinates": [
@@ -203,19 +241,25 @@ tests =
     ]
   ]
 }
-        """ :: Maybe GeometryObject)
+        """
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ t' :: Maybe GeometryObject)
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ (SimpleJSON.writeJSON o))
 
     test "GeometryCollection" do
-      Assert.equal
-        (Just
-          (GeometryCollection
+      let
+        o =
+          GeometryCollection
             [ Point [100.0, 0.0]
             , LineString
               [ [101.0, 0.0]
               , [102.0, 1.0]
               ]
-            ]))
-        (SimpleJSON.readJSON_ """
+            ]
+        t' = """
 {
   "type": "GeometryCollection",
   "geometries": [{
@@ -229,17 +273,22 @@ tests =
     ]
   }]
 }
-        """ :: Maybe GeometryObject)
+        """
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ t' :: Maybe GeometryObject)
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ (SimpleJSON.writeJSON o))
 
     test "Feature" do
-      Assert.equal
-        (Just
-          (Feature
+      let
+        o =
+          Feature
             (Just (Point [102.0, 0.5]))
             (Just (SimpleJSON.writeJSON { prop0: "value0" }))
             Nothing
-            ))
-        (SimpleJSON.readJSON_ """
+        t' = """
 {
   "type": "Feature",
   "geometry": {
@@ -250,15 +299,21 @@ tests =
     "prop0": "value0"
   }
 }
-        """ :: Maybe FeatureObject)
+        """
       Assert.equal
-        (Just
-          (Feature
+        (Just o)
+        (SimpleJSON.readJSON_ t' :: Maybe FeatureObject)
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ (SimpleJSON.writeJSON o))
+
+      let
+        o2 =
+          Feature
             Nothing
             Nothing
             (Just (Right "f1"))
-            ))
-        (SimpleJSON.readJSON_ """
+        t'2 = """
 {
   "type": "Feature",
   "id": "f1",
@@ -266,12 +321,18 @@ tests =
   "properties": null,
   "title": "Example Feature"
 }
-        """ :: Maybe FeatureObject)
+        """
+      Assert.equal
+        (Just o2)
+        (SimpleJSON.readJSON_ t'2 :: Maybe FeatureObject)
+      Assert.equal
+        (Just o2)
+        (SimpleJSON.readJSON_ (SimpleJSON.writeJSON o2))
 
     test "FeatureCollection" do
-      Assert.equal
-        (Just
-          (FeatureCollection
+      let
+        o =
+          FeatureCollection
             [ (Feature
                 (Just (Point [102.0, 0.5]))
                 (Just (SimpleJSON.writeJSON { prop0: "value0" }))
@@ -310,8 +371,8 @@ tests =
 }
                 """ :: Maybe Foreign))
                 Nothing)
-            ]))
-        (SimpleJSON.readJSON_ """
+            ]
+        t' = """
 {
   "type": "FeatureCollection",
   "features": [{
@@ -360,12 +421,18 @@ tests =
     }
   }]
 }
-        """ :: Maybe FeatureCollectionObject)
+        """
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ t' :: Maybe FeatureCollectionObject)
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ (SimpleJSON.writeJSON o))
 
     test "GeoJSON" do
-      Assert.equal
-        (Just
-          (GeoJSON.FeatureCollectionObject
+      let
+        o =
+          GeoJSON.FeatureCollectionObject
             (FeatureCollection
               [ (Feature
                   (Just (Point [102.0, 0.5]))
@@ -405,8 +472,8 @@ tests =
   }
                   """ :: Maybe Foreign))
                   Nothing)
-              ])))
-        (SimpleJSON.readJSON_ """
+              ])
+        t' = """
 {
   "type": "FeatureCollection",
   "features": [{
@@ -455,4 +522,10 @@ tests =
     }
   }]
 }
-        """ :: Maybe GeoJSON)
+        """
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ t' :: Maybe GeoJSON)
+      Assert.equal
+        (Just o)
+        (SimpleJSON.readJSON_ (SimpleJSON.writeJSON o))

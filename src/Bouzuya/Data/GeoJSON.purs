@@ -10,11 +10,11 @@ module Bouzuya.Data.GeoJSON
 
 import Data.Either (Either(..), either)
 import Data.Maybe (Maybe(..), maybe)
-import Data.Nullable (Nullable, toMaybe)
+import Data.Nullable (Nullable, toMaybe, toNullable)
 import Foreign (F, Foreign, ForeignError(..))
 import Foreign as Foreign
-import Prelude (class Eq, class Show, bind, identity, map, pure, show, (<<<), (<>))
-import Simple.JSON (class ReadForeign)
+import Prelude (class Eq, class Show, bind, identity, map, pure, show, (<<<), (<>), (>>=))
+import Simple.JSON (class ReadForeign, class WriteForeign)
 import Simple.JSON as SimpleJSON
 
 type Position = Array Number
@@ -74,6 +74,22 @@ instance showGeometryObject :: Show GeometryObject where
   show (MultiPolygon r) = "(MultiPolygon " <> show r <> ")"
   show (GeometryCollection r) = "(GeometryCollection " <> show r <> ")"
 
+instance writeForeignGeometryObject :: WriteForeign GeometryObject where
+  writeImpl (Point r) =
+    SimpleJSON.writeImpl { type: "Point", coordinates: r }
+  writeImpl (LineString r) =
+    SimpleJSON.writeImpl { type: "LineString", coordinates: r }
+  writeImpl (Polygon r) =
+    SimpleJSON.writeImpl { type: "Polygon", coordinates: r }
+  writeImpl (MultiPoint r) =
+    SimpleJSON.writeImpl { type: "MultiPoint", coordinates: r }
+  writeImpl (MultiLineString r) =
+    SimpleJSON.writeImpl { type: "MultiLineString", coordinates: r }
+  writeImpl (MultiPolygon r) =
+    SimpleJSON.writeImpl { type: "MultiPolygon", coordinates: r }
+  writeImpl (GeometryCollection r) =
+    SimpleJSON.writeImpl { type: "GeometryCollection", geometries: r }
+
 type Properties = String
 
 type FeatureId = Either Number String
@@ -121,6 +137,15 @@ instance showFeatureObject :: Show FeatureObject where
     <> (maybe "" (\e -> " id: " <> (either show identity e)) i)
     <> ")"
 
+instance writeForeignFeatureObject :: WriteForeign FeatureObject where
+  writeImpl (Feature geometry properties id) =
+    SimpleJSON.writeImpl
+      { type: "Feature"
+      , geometry: toNullable geometry
+      , properties: toNullable (properties >>= SimpleJSON.readJSON_) :: Nullable Foreign
+      , id: map (either SimpleJSON.writeImpl SimpleJSON.writeImpl) id
+      }
+
 data FeatureCollectionObject
   = FeatureCollection (Array FeatureObject)
 
@@ -139,6 +164,13 @@ instance readForeignFeatureCollectionObject :: ReadForeign FeatureCollectionObje
 
 instance showFeatureCollectionObject :: Show FeatureCollectionObject where
   show (FeatureCollection fs) = "(FeatureCollection " <> show fs <> ")"
+
+instance writeForeignFeatureCollectionObject :: WriteForeign FeatureCollectionObject where
+  writeImpl (FeatureCollection fs) =
+    SimpleJSON.writeImpl
+      { type: "FeatureCollection"
+      , features: map SimpleJSON.writeImpl fs
+      }
 
 data GeoJSON
   = GeometryObject GeometryObject
@@ -176,3 +208,8 @@ instance showGeoJSON :: Show GeoJSON where
   show (GeometryObject o) = show o
   show (FeatureObject o) = show o
   show (FeatureCollectionObject o) = show o
+
+instance writeForeignGeoJSON :: WriteForeign GeoJSON where
+  writeImpl (GeometryObject o) = SimpleJSON.writeImpl o
+  writeImpl (FeatureObject o) = SimpleJSON.writeImpl o
+  writeImpl (FeatureCollectionObject o) = SimpleJSON.writeImpl o
